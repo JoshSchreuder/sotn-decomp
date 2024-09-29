@@ -98,7 +98,6 @@ void EntityGreyPuff(Entity* entity);
 void func_801C4CC0(void);
 
 extern u8 D_8003BE6F[];
-extern PfnEntityUpdate PfnEntityUpdates[];
 extern u16 g_InitializeEntityData0[];
 extern u16 g_EInitGeneric[]; // Init Elevator2
 extern u16 g_eInitGeneric2[];

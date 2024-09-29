@@ -1,5 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "nz0.h"
+#include "../pfn_entity_update.h"
 
 static const char* actor_names[] = {_S("Alucard"), _S("Maria")};
 
