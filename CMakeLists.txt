@@ -24,7 +24,7 @@ if (CMAKE_CXX_COMPILER_ID MATCHES "GNU|Clang|AppleClang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-return-mismatch")
 endif()
 
-if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|AppleClang")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-implicit-function-declaration")
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -Wno-return-type")
 endif()
