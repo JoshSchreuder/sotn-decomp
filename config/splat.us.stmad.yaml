@@ -20,7 +20,7 @@ options:
   migrate_rodata_to_functions: yes
   asm_jtbl_label_macro: jlabel
   extensions_path: tools/splat_ext
-  string_encoding: SHIFT-JIS
+  string_encoding: shift_jis
   disassemble_all: true
   section_order:
     - ".data"

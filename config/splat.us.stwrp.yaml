@@ -20,6 +20,7 @@ options:
   asm_jtbl_label_macro: jlabel
   extensions_path: tools/splat_ext
   disassemble_all: true
+  string_encoding: shift_jis
   section_order:
     - ".data"
     - ".rodata"

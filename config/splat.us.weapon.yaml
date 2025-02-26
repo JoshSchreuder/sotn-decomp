@@ -19,6 +19,7 @@ options:
   use_legacy_include_asm: no
   extensions_path: tools/splat_ext
   symbol_name_format: $SEG_$VRAM
+  string_encoding: shift_jis
   section_order:
     - ".data"
     - ".rodata"

@@ -18,6 +18,7 @@ options:
   use_legacy_include_asm: no
   asm_jtbl_label_macro: jlabel
   disassemble_all: true
+  string_encoding: shift_jis
   section_order:
     - ".rodata"
     - ".text"

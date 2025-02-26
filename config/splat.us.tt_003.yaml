@@ -20,6 +20,7 @@ options:
   asm_jtbl_label_macro: jlabel
   symbol_name_format: us_$VRAM
   disassemble_all: true
+  string_encoding: shift_jis
   section_order:
     - .data
     - .rodata
