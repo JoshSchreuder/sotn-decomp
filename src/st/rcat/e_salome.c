@@ -2,92 +2,165 @@
 #include "rcat.h"
 
 extern EInit g_EInitSalome;
-extern EInit D_us_80181078;
-extern EInit D_us_80181084;
-extern EInit D_us_80181090;
-extern EInit D_us_8018109C;
+extern EInit g_EInitSalomeEffects;
+extern EInit g_EInitSalomeMagicOrb;
+extern EInit g_EInitSalomeSkull;
+extern EInit g_EInitSalomeCat;
 
-static s16 D_us_80182190[] = {0, 7, 8, 0};
-static u8 D_us_80182198[] = {
-    0x02, 0x01, 0x06, 0x02, 0x06, 0x03, 0xFF, 0x00,
+static s16 sensors_wall[] = {0, 7, 8, 0};
+static AnimateEntityFrame anim_turn_to_player[] = {
+    {.duration = 2, .pose = 0x01},
+    {.duration = 6, .pose = 0x02},
+    {.duration = 6, .pose = 0x03},
+    POSE_END,
 };
-static u8 D_us_801821A0[] = {
-    0x04, 0x03, 0x04, 0x02, 0x04, 0x01, 0xFF, 0x00,
+static AnimateEntityFrame anim_return_to_stationary[] = {
+    {.duration = 4, .pose = 0x03},
+    {.duration = 4, .pose = 0x02},
+    {.duration = 4, .pose = 0x01},
+    POSE_END,
 };
-static u8 D_us_801821A8[] = {
-    0x03, 0x04, 0x03, 0x05, 0x03, 0x06, 0x03, 0x07, 0x03, 0x08, 0x00, 0x00,
+static AnimateEntityFrame anim_fly[] = {
+    {.duration = 3, .pose = 0x04}, {.duration = 3, .pose = 0x05},
+    {.duration = 3, .pose = 0x06}, {.duration = 3, .pose = 0x07},
+    {.duration = 3, .pose = 0x08}, POSE_LOOP(0),
 };
-static u8 D_us_801821B4[] = {
-    0x06, 0x09, 0x06, 0x0A, 0x06, 0x0B, 0x03, 0x0C,
-    0x02, 0x0D, 0x02, 0x0E, 0x01, 0x0F, 0xFF, 0x00,
+static AnimateEntityFrame anim_turn_with_sparkles[] = {
+    {.duration = 6, .pose = 0x09}, {.duration = 6, .pose = 0x0A},
+    {.duration = 6, .pose = 0x0B}, {.duration = 3, .pose = 0x0C},
+    {.duration = 2, .pose = 0x0D}, {.duration = 2, .pose = 0x0E},
+    {.duration = 1, .pose = 0x0F}, POSE_END,
 };
-static u8 D_us_801821C4[] = {
-    0x04, 0x01, 0x08, 0x10, 0x03, 0x11, 0x03, 0x12, 0x03, 0x13,
-    0x1C, 0x14, 0x02, 0x15, 0x02, 0x16, 0x02, 0x17, 0x02, 0x18,
-    0x02, 0x19, 0x06, 0x1A, 0x04, 0x01, 0xFF, 0x00,
+static AnimateEntityFrame anim_throw[] = {
+    {.duration = 4, .pose = 0x01}, {.duration = 8, .pose = 0x10},
+    {.duration = 3, .pose = 0x11}, {.duration = 3, .pose = 0x12},
+    {.duration = 3, .pose = 0x13}, {.duration = 28, .pose = 0x14},
+    {.duration = 2, .pose = 0x15}, {.duration = 2, .pose = 0x16},
+    {.duration = 2, .pose = 0x17}, {.duration = 2, .pose = 0x18},
+    {.duration = 2, .pose = 0x19}, {.duration = 6, .pose = 0x1A},
+    {.duration = 4, .pose = 0x01}, POSE_END,
 };
-static u8 D_us_801821E0[] = {
-    0x02, 0x1B, 0x02, 0x1C, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_shield[] = {
+    {.duration = 2, .pose = 0x1B},
+    {.duration = 2, .pose = 0x1C},
+    POSE_LOOP(0),
 };
-static u8 D_us_801821E8[] = {
-    0x02, 0x1E, 0x02, 0x1F, 0x02, 0x20, 0x02, 0x21, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_magic_orb[] = {
+    {.duration = 2, .pose = 0x1E},
+    {.duration = 2, .pose = 0x1F},
+    {.duration = 2, .pose = 0x20},
+    {.duration = 2, .pose = 0x21},
+    POSE_LOOP(0),
 };
-static u8 D_us_801821F4[] = {
-    0x02, 0x22, 0x02, 0x23, 0x02, 0x24, 0x02, 0x25, 0x02, 0x26,
-    0x02, 0x27, 0x02, 0x28, 0x02, 0x29, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_skull_rotate[] = {
+    {.duration = 2, .pose = 0x22},
+    {.duration = 2, .pose = 0x23},
+    {.duration = 2, .pose = 0x24},
+    {.duration = 2, .pose = 0x25},
+    {.duration = 2, .pose = 0x26},
+    {.duration = 2, .pose = 0x27},
+    {.duration = 2, .pose = 0x28},
+    {.duration = 2, .pose = 0x29},
+    POSE_LOOP(0),
 };
-static u8 D_us_80182208[] = {
-    0x01, 0x22, 0x01, 0x23, 0x01, 0x24, 0x01, 0x25, 0x01, 0x26, 0x01, 0x27,
-    0x02, 0x28, 0x02, 0x29, 0x02, 0x22, 0x02, 0x23, 0x03, 0x24, 0x03, 0x25,
-    0x03, 0x26, 0x04, 0x27, 0x04, 0x28, 0x04, 0x29, 0x04, 0x22, 0x05, 0x23,
-    0x05, 0x24, 0x05, 0x25, 0x05, 0x26, 0x05, 0x27, 0x05, 0x28, 0x05, 0x29,
-    0x05, 0x22, 0x05, 0x23, 0x05, 0x24, 0x05, 0x25, 0x05, 0x26, 0x05, 0x27,
-    0x05, 0x28, 0x05, 0x29, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_skull_rotate_decel[] = {
+    {.duration = 1, .pose = 0x22},
+    {.duration = 1, .pose = 0x23},
+    {.duration = 1, .pose = 0x24},
+    {.duration = 1, .pose = 0x25},
+    {.duration = 1, .pose = 0x26},
+    {.duration = 1, .pose = 0x27},
+    {.duration = 2, .pose = 0x28},
+    {.duration = 2, .pose = 0x29},
+    {.duration = 2, .pose = 0x22},
+    {.duration = 2, .pose = 0x23},
+    {.duration = 3, .pose = 0x24},
+    {.duration = 3, .pose = 0x25},
+    {.duration = 3, .pose = 0x26},
+    {.duration = 4, .pose = 0x27},
+    {.duration = 4, .pose = 0x28},
+    {.duration = 4, .pose = 0x29},
+    {.duration = 4, .pose = 0x22},
+    {.duration = 5, .pose = 0x23},
+    {.duration = 5, .pose = 0x24},
+    {.duration = 5, .pose = 0x25},
+    {.duration = 5, .pose = 0x26},
+    {.duration = 5, .pose = 0x27},
+    {.duration = 5, .pose = 0x28},
+    {.duration = 5, .pose = 0x29},
+    {.duration = 5, .pose = 0x22},
+    {.duration = 5, .pose = 0x23},
+    {.duration = 5, .pose = 0x24},
+    {.duration = 5, .pose = 0x25},
+    {.duration = 5, .pose = 0x26},
+    {.duration = 5, .pose = 0x27},
+    {.duration = 5, .pose = 0x28},
+    {.duration = 5, .pose = 0x29},
+    POSE_LOOP(0),
 };
-static u8 D_us_8018224C[] = {
-    0x02, 0x2A, 0x01, 0x2B, 0x03, 0x2C, 0x03, 0x2D,
-    0x03, 0x2E, 0x03, 0x2F, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_cat_move[] = {
+    {.duration = 2, .pose = 0x2A},
+    {.duration = 1, .pose = 0x2B},
+    {.duration = 3, .pose = 0x2C},
+    {.duration = 3, .pose = 0x2D},
+    {.duration = 3, .pose = 0x2E},
+    {.duration = 3, .pose = 0x2F},
+    POSE_LOOP(0),
 };
-static u8 D_us_8018225C[] = {
-    0x02, 0x33, 0x01, 0x34, 0x03, 0x35, 0x03, 0x36,
-    0x03, 0x37, 0x03, 0x38, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_death_cat_move[] = {
+    {.duration = 2, .pose = 0x33},
+    {.duration = 1, .pose = 0x34},
+    {.duration = 3, .pose = 0x35},
+    {.duration = 3, .pose = 0x36},
+    {.duration = 3, .pose = 0x37},
+    {.duration = 3, .pose = 0x38},
+    POSE_LOOP(0),
 };
-static u8 D_us_8018226C[] = {
-    0x02, 0x31, 0x02, 0x32, 0x00, 0x00, 0x00, 0x00,
+static AnimateEntityFrame anim_lantern_flicker[] = {
+    {.duration = 2, .pose = 0x31},
+    {.duration = 2, .pose = 0x32},
+    POSE_LOOP(0),
 };
-static Point16 D_us_80182274[] = {
-    {.x = 0x0016, .y = 0x0003}, {.x = 0x0016, .y = 0xFFFF},
-    {.x = 0xFFED, .y = 0xFFFE}, {.x = 0xFFE8, .y = 0x0009},
-    {.x = 0xFFE8, .y = 0x0009}, {.x = 0xFFE8, .y = 0x0009},
-    {.x = 0xFFE8, .y = 0x0009}, {.x = 0xFFE8, .y = 0x0009},
-    {.x = 0xFFF1, .y = 0x0003}, {.x = 0xFFEC, .y = 0xFFFE},
-    {.x = 0x0014, .y = 0xFFFE}, {.x = 0x001A, .y = 0x0009},
-    {.x = 0x001A, .y = 0x0009}, {.x = 0x001A, .y = 0x0009},
-    {.x = 0x001A, .y = 0x0009}, {.x = 0x0019, .y = 0xFFFE},
-    {.x = 0x0019, .y = 0xFFFD}, {.x = 0x0019, .y = 0xFFFC},
-    {.x = 0x0019, .y = 0xFFFB}, {.x = 0x0019, .y = 0xFFFB},
-    {.x = 0x0019, .y = 0xFFFC}, {.x = 0x0019, .y = 0xFFFD},
-    {.x = 0x0019, .y = 0xFFFE}, {.x = 0x0019, .y = 0xFFFE},
-    {.x = 0x0018, .y = 0xFFFF}, {.x = 0x0017, .y = 0x0000},
+// Indexed off animCurFrame
+static Point16 lantern_light_positions[] = {
+    {.x = 22, .y = 3},   {.x = 22, .y = -1}, {.x = -19, .y = -2},
+    {.x = -24, .y = 9},  {.x = -24, .y = 9}, {.x = -24, .y = 9},
+    {.x = -24, .y = 9},  {.x = -24, .y = 9}, {.x = -15, .y = 3},
+    {.x = -20, .y = -2}, {.x = 20, .y = -2}, {.x = 26, .y = 9},
+    {.x = 26, .y = 9},   {.x = 26, .y = 9},  {.x = 26, .y = 9},
+    {.x = 25, .y = -2},  {.x = 25, .y = -3}, {.x = 25, .y = -4},
+    {.x = 25, .y = -5},  {.x = 25, .y = -5}, {.x = 25, .y = -4},
+    {.x = 25, .y = -3},  {.x = 25, .y = -2}, {.x = 25, .y = -2},
+    {.x = 24, .y = -1},  {.x = 23, .y = 0},
 };
 
-void func_us_801C1804(Entity*);
-void func_us_801C0990(Entity* self) {
-    Entity* entity;      // s0
-    s32 posY;            // s1
-    s16 angle;           // s2
-    s32 facingDirection; // s3
+void EntitySalomeCat(Entity*);
+void EntitySalome(Entity* self) {
+    Entity* entity;
+    s32 posY;
+    s16 angle;
+    s32 facingDirection;
+
+    enum Step {
+        INIT = 0,
+        IDLE = 2,
+        FLY = 4,
+        CHANGE_DIRECTION = 5,
+        THROW_OBJECT = 6,
+        DEATH = 8,
+        DEBUG = 255,
+    };
 
     if ((GetDistanceToPlayerX() < 0x50) && (GetDistanceToPlayerY() < 0x40)) {
-        self->ext.salome.unk86 = true;
+        self->ext.salome.playerWithinProximity = true;
     } else {
-        self->ext.salome.unk86 = false;
+        self->ext.salome.playerWithinProximity = false;
     }
 
     self->hitboxState = 3;
     entity = &PLAYER;
     if (((GetSideToPlayer() & 1) ^ 1) == self->facingLeft &&
-        self->ext.salome.unk86) {
+        self->ext.salome.playerWithinProximity) {
         self->hitboxState = 1;
     }
 
@@ -95,91 +168,107 @@ void func_us_801C0990(Entity* self) {
         PlaySfxPositional(SFX_SALOME_PAIN);
     }
 
-    if (self->flags & FLAG_DEAD && self->step < 8) {
-        SetStep(8);
+    if (self->flags & FLAG_DEAD && self->step < DEATH) {
+        SetStep(DEATH);
     }
 
     switch (self->step) {
-    case 0:
+    case INIT:
         InitializeEntity(g_EInitSalome);
+        // Start out looking in the player's direction
         self->facingLeft = (GetSideToPlayer() & 1) ^ 1;
-        self->ext.salome.unk85 = Random() & 1;
-        self->ext.salome.unk88 = 0x30;
+        // Pick a starting thrown object randomly
+        // 0 = skull, 1 = cat
+        self->ext.salome.thrownObject = Random() & 1;
+        self->ext.salome.attackTimer = 0x30;
         self->zPriority = 0xAA;
+
+        // Spawn the magical shield entity
         entity = self + 1;
-        CreateEntityFromCurrentEntity(E_UNK_29, entity);
+        CreateEntityFromCurrentEntity(E_SALOME_EFFECTS, entity);
         entity->zPriority = self->zPriority + 1;
         entity->params = 0;
 
+        // Spawn the lantern flicker entity
         entity = self + 2;
-        CreateEntityFromCurrentEntity(E_UNK_29, entity);
+        CreateEntityFromCurrentEntity(E_SALOME_EFFECTS, entity);
         entity->zPriority = self->zPriority - 1;
         entity->params = 1;
-        SetStep(2);
+
+        SetStep(IDLE);
         // fallthrough
-    case 2:
+    case IDLE:
         switch (self->step_s) {
         case 0:
+            // Rise and fall on broomstick while idling
             self->animCurFrame = 1;
             MoveEntity();
-            angle = self->ext.salome.unk82 += 0x20;
+            angle = self->ext.salome.bobPhase += 0x20;
             angle &= 0xFFF;
             self->velocityX = 0;
             self->velocityY = rsin(angle) * 8;
+
+            // When the player is close enough, we aggro
             if (GetDistanceToPlayerX() < 0x60) {
                 self->step_s++;
             }
             break;
         case 1:
-            if (AnimateEntity(&D_us_80182198, self) == 0) {
-                SetStep(4);
+            if (!AnimateEntity(anim_turn_to_player, self)) {
+                SetStep(FLY);
             }
             break;
         }
         break;
-    case 4:
+    case FLY:
         if (!self->step_s) {
             self->step_s++;
         }
-        AnimateEntity(D_us_801821A8, self);
+        AnimateEntity(anim_fly, self);
         MoveEntity();
-        if (self->facingLeft ^ self->ext.salome.unk84) {
-            self->velocityX += 0xC00;
+        if (self->facingLeft ^ self->ext.salome.moveLeft) {
+            // Fly right
+            self->velocityX += FIX(3.0 / 64.0);
             if (self->velocityX >= FIX(1.25)) {
                 self->velocityX = FIX(1.25);
             }
         } else {
-            self->velocityX -= 0xC00;
+            // Fly left
+            self->velocityX -= FIX(3.0 / 64.0);
             if (self->velocityX <= FIX(-1.25)) {
                 self->velocityX = FIX(-1.25);
             }
         }
 
+        // Track the player's height and aim roughly above them at a fixed
+        // distance
         entity = &PLAYER;
         posY = entity->posY.i.hi;
         posY = posY - 0x48 - self->posY.i.hi;
         if (posY < -8) {
-            self->velocityY -= 0x600;
+            self->velocityY -= FIX(3.0 / 128.0);
             if (self->velocityY <= FIX(-0.625)) {
                 self->velocityY = FIX(-0.625);
             }
         }
 
         if (posY > 8) {
-            self->velocityY += 0xC00;
+            self->velocityY += FIX(3.0 / 64.0);
             if (self->velocityY >= FIX(0.625)) {
                 self->velocityY = FIX(0.625);
             }
         }
 
-        if (!self->ext.salome.unk88) {
+        if (!self->ext.salome.attackTimer) {
+            // If the player is underneath us, spawn a magic orb at them,
+            // otherwise move into Throw Object step
             if (GetDistanceToPlayerX() > 0x40) {
-                SetStep(6);
+                SetStep(THROW_OBJECT);
             } else {
                 PlaySfxPositional(SFX_SALOME_MAGIC_ATTACK);
                 entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
                 if (entity != NULL) {
-                    CreateEntityFromEntity(E_UNK_2A, self, entity);
+                    CreateEntityFromEntity(E_SALOME_MAGIC_ORB, self, entity);
                     if (self->facingLeft) {
                         entity->posX.i.hi += 0x1C;
                     } else {
@@ -189,50 +278,51 @@ void func_us_801C0990(Entity* self) {
                     entity->zPriority = self->zPriority + 1;
                 }
             }
-            self->ext.salome.unk88 = 0x30;
+            self->ext.salome.attackTimer = 0x30;
         } else {
-            self->ext.salome.unk88--;
+            self->ext.salome.attackTimer--;
         }
 
         facingDirection = ((GetSideToPlayer() & 1) ^ 1);
         if (self->facingLeft != facingDirection) {
-            SetStep(5);
+            SetStep(CHANGE_DIRECTION);
         }
         break;
-    case 5:
-        if (!AnimateEntity(D_us_801821B4, self)) {
+    case CHANGE_DIRECTION:
+        if (!AnimateEntity(anim_turn_with_sparkles, self)) {
             self->animCurFrame = 4;
             self->facingLeft ^= 1;
-            SetStep(4);
+            SetStep(FLY);
         }
         MoveEntity();
         self->velocityX -= self->velocityX / 32;
         self->velocityY -= self->velocityY / 32;
-        return;
-    case 6:
+        break;
+    case THROW_OBJECT:
         switch (self->step_s) {
         case 0:
             MoveEntity();
             self->velocityX -= self->velocityX / 4;
             self->velocityY -= self->velocityY / 4;
-            if (!AnimateEntity(&D_us_801821A0, self)) {
+            if (!AnimateEntity(anim_return_to_stationary, self)) {
                 SetSubStep(1);
             }
             break;
         case 1:
-            if (!AnimateEntity(D_us_801821C4, self)) {
+            if (!AnimateEntity(anim_throw, self)) {
                 SetSubStep(2);
             }
+
             if (!self->poseTimer && self->pose == 5) {
-                self->ext.salome.unk85 ^= 1;
+                self->ext.salome.thrownObject ^= 1;
                 entity = AllocEntity(&g_Entities[160], &g_Entities[192]);
                 if (entity != NULL) {
-                    if (self->ext.salome.unk85) {
+                    if (self->ext.salome.thrownObject) {
                         PlaySfxPositional(SFX_SALOME_MEOW_SHORT);
-                        CreateEntityFromEntity(E_UNK_2C, self, entity);
+                        CreateEntityFromEntity(E_SALOME_CAT, self, entity);
                     } else {
                         PlaySfxPositional(SFX_SALOME_ATTACK);
-                        CreateEntityFromEntity(E_UNK_2B, self, entity);
+                        CreateEntityFromEntity(E_SALOME_SKULL, self, entity);
                     }
 
                     entity->zPriority = self->zPriority + 1;
@@ -247,13 +337,13 @@ void func_us_801C0990(Entity* self) {
             }
             break;
         case 2:
-            if (!AnimateEntity(D_us_80182198, self)) {
-                SetStep(4);
+            if (!AnimateEntity(anim_turn_to_player, self)) {
+                SetStep(FLY);
             }
             break;
         }
         break;
-    case 8:
+    case DEATH:
         switch (self->step_s) {
         case 0:
             self->hitboxState = 0;
@@ -262,7 +352,7 @@ void func_us_801C0990(Entity* self) {
             DestroyEntity(entity);
 
             entity = self + 2;
-            entity->step = 8;
+            entity->step = DEATH;
 
             self->blendMode = BLEND_NO;
             self->drawFlags = ENTITY_OPACITY | ENTITY_SCALEY | ENTITY_SCALEX;
@@ -271,6 +361,7 @@ void func_us_801C0990(Entity* self) {
             self->step_s++;
             // fallthrough
         case 1:
+            // Shrink down into cat form and scamper away
             self->scaleX = self->scaleY -= 8;
             if (self->opacity) {
                 self->opacity -= 4;
@@ -285,9 +376,9 @@ void func_us_801C0990(Entity* self) {
                 entity = self + 2;
                 entity->step = 0;
                 entity->step_s = 0;
-                entity->entityId = 0x2C;
-                entity->pfnUpdate = func_us_801C1804;
-                entity->ext.salome.unk9E = 1;
+                entity->entityId = E_SALOME_CAT;
+                entity->pfnUpdate = EntitySalomeCat;
+                entity->ext.salome.isDeathCat = true;
 
                 entity = self;
                 DestroyEntity(entity);
@@ -296,43 +387,49 @@ void func_us_801C0990(Entity* self) {
         }
         break;
 
-    case 0xFF:
+    case DEBUG:
 #include "../pad2_anim_debug.h"
     }
 }
 
-void func_us_801C1194(Entity* self) {
+// Params 0: magic shield
+// Params 1: lantern light
+void EntitySalomeEffects(Entity* self) {
     Entity* entity;
     s32 animCurFrame;
 
+    enum Step { INIT = 0, SHIELD = 1, LANTERN_LIGHT = 2, DEATH = 8 };
+
     switch (self->step) {
-    case 0:
-        InitializeEntity(D_us_80181078);
+    case INIT:
+        InitializeEntity(g_EInitSalomeEffects);
         self->hitboxState = 2;
         self->blendMode = BLEND_ADD | BLEND_TRANSP;
         if (!self->params) {
+            // Magical shield
             self->drawFlags = ENTITY_OPACITY;
             self->hitboxWidth = 0x14;
             self->hitboxHeight = 0x30;
             self->hitboxOffX = -0x11;
             // fallthrough
         } else {
+            // Lantern light effect
             self->blendMode = BLEND_ADD | BLEND_TRANSP;
             self->hitboxState = 0;
-            self->step = 2;
+            self->step = LANTERN_LIGHT;
             break;
         }
-    case 1:
-        AnimateEntity(D_us_801821E0, self);
+    case SHIELD:
+        AnimateEntity(anim_shield, self);
         entity = self - 1;
         self->facingLeft = entity->facingLeft;
         self->posX.i.hi = entity->posX.i.hi;
         self->posY.i.hi = entity->posY.i.hi;
 
-        if (entity->ext.salome.unk86) {
-            if (!self->ext.salome.unk87) {
+        if (entity->ext.salome.playerWithinProximity) {
+            if (!self->ext.salome.shieldActivated) {
                 PlaySfxPositional(SFX_MAGIC_NOISE_SWEEP);
-                self->ext.salome.unk87 = true;
+                self->ext.salome.shieldActivated = true;
             }
             self->hitboxState = 2;
             self->opacity += 16;
@@ -342,7 +439,7 @@ void func_us_801C1194(Entity* self) {
             break;
         }
 
-        self->ext.salome.unk87 = false;
+        self->ext.salome.shieldActivated = false;
         self->hitboxState = 0;
         if (self->opacity) {
             self->opacity -= 16;
@@ -351,21 +448,21 @@ void func_us_801C1194(Entity* self) {
 
         self->animCurFrame = 0;
         break;
-    case 2:
-        AnimateEntity(&D_us_8018226C, self);
+    case LANTERN_LIGHT:
+        AnimateEntity(anim_lantern_flicker, self);
         entity = self - 2;
         self->facingLeft = entity->facingLeft;
         self->posX.i.hi = entity->posX.i.hi;
         self->posY.i.hi = entity->posY.i.hi;
         animCurFrame = entity->animCurFrame;
         if (self->facingLeft) {
-            self->posX.i.hi -= D_us_80182274[animCurFrame].x;
+            self->posX.i.hi -= lantern_light_positions[animCurFrame].x;
         } else {
-            self->posX.i.hi += D_us_80182274[animCurFrame].x;
+            self->posX.i.hi += lantern_light_positions[animCurFrame].x;
         }
-        self->posY.i.hi += D_us_80182274[animCurFrame].y;
+        self->posY.i.hi += lantern_light_positions[animCurFrame].y;
         break;
-    case 8:
+    case DEATH:
         self->drawFlags = ENTITY_DEFAULT;
         self->blendMode = BLEND_NO;
 
@@ -378,18 +475,18 @@ void func_us_801C1194(Entity* self) {
     }
 }
 
-void func_us_801C13B4(Entity* self) {
+void EntitySalomeMagicOrb(Entity* self) {
     Entity* player;
     s16 angle;
 
     if (!self->step) {
-        InitializeEntity(D_us_80181084);
+        InitializeEntity(g_EInitSalomeMagicOrb);
         player = &PLAYER;
         angle = GetAngleBetweenEntities(player, self);
-        self->velocityX = (rcos(angle) * -0x10000) >> 0xC;
-        self->velocityY = (rsin(angle) * -0x10000) >> 0xC;
+        self->velocityX = (rcos(angle) * FIX(-1.0)) >> 0xC;
+        self->velocityY = (rsin(angle) * FIX(-1.0)) >> 0xC;
     }
-    AnimateEntity(D_us_801821E8, self);
+    AnimateEntity(anim_magic_orb, self);
     MoveEntity();
 
     if (self->hitFlags || self->flags & FLAG_DEAD) {
@@ -397,7 +494,7 @@ void func_us_801C13B4(Entity* self) {
     }
 }
 
-void func_us_801C148C(Entity* self) {
+void EntitySalomeSkull(Entity* self) {
     Collider collider;
     Entity* entity;
     s32 posX;
@@ -415,7 +512,7 @@ void func_us_801C148C(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_80181090);
+        InitializeEntity(g_EInitSalomeSkull);
         if (self->facingLeft) {
             self->velocityX = FIX(1.25);
         } else {
@@ -424,9 +521,9 @@ void func_us_801C148C(Entity* self) {
         self->velocityY = FIX(-1.0);
         // fallthrough
     case 1:
-        AnimateEntity(D_us_801821F4, self);
+        AnimateEntity(anim_skull_rotate, self);
         MoveEntity();
-        self->velocityY += FIX(0.09375);
+        self->velocityY += FIX(3.0 / 32.0);
         posX = self->posX.i.hi;
         posY = self->posY.i.hi + 2;
         g_api.CheckCollision(posX, posY, &collider, 0);
@@ -435,13 +532,13 @@ void func_us_801C148C(Entity* self) {
         }
         break;
     case 2:
-        if (self->ext.salome.unk9C) {
-            AnimateEntity(D_us_80182208, self);
+        if (self->ext.salome.touchedGround) {
+            AnimateEntity(anim_skull_rotate_decel, self);
         } else {
-            AnimateEntity(D_us_801821F4, self);
+            AnimateEntity(anim_skull_rotate, self);
         }
         MoveEntity();
-        self->velocityY += FIX(0.09375);
+        self->velocityY += FIX(3.0 / 32.0);
         posX = self->posX.i.hi;
         posY = self->posY.i.hi;
         if (self->velocityX > 0) {
@@ -468,14 +565,16 @@ void func_us_801C148C(Entity* self) {
             PlaySfxPositional(SFX_SKULL_KNOCK_B);
             self->posY.i.hi += collider.unk18;
             self->velocityY = -self->velocityY;
+            // Lose a little bit of height every bounce
             self->velocityY -= self->velocityY / 8;
 
-            if (!self->ext.salome.unk9C) {
+            if (!self->ext.salome.touchedGround) {
                 self->pose = 0;
                 self->poseTimer = 0;
             }
 
-            self->ext.salome.unk9C |= 1;
+            self->ext.salome.touchedGround |= 1;
+            // Once the skull has reached a minimum bounce velocity, kill it
             if (abs(self->velocityY) < 0x4000) {
                 self->flags |= FLAG_DEAD;
             }
@@ -494,20 +593,20 @@ void func_us_801C148C(Entity* self) {
     }
 }
 
-void func_us_801C1804(Entity* self) {
+void EntitySalomeCat(Entity* self) {
     Collider collider;
     Entity* entity;
-    s32 var_s1;
-    s32 var_s3;
+    s32 collisionTest;
+    s32 hitFlags;
     s32 posX;
     s32 posY;
 
-    var_s3 = self->hitFlags;
+    hitFlags = self->hitFlags;
     if (self->flags & FLAG_DEAD) {
-        var_s3 |= 3;
+        hitFlags |= 3;
     }
 
-    if (var_s3 && !(var_s3 & 0x80)) {
+    if (hitFlags && !(hitFlags & 0x80)) {
         self->ext.salome.unk9D = 1;
         if (self->step != 1) {
             self->velocityY = FIX(-2.0);
@@ -517,7 +616,7 @@ void func_us_801C1804(Entity* self) {
 
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_8018109C);
+        InitializeEntity(g_EInitSalomeCat);
         self->attackElement = 7;
         self->drawFlags |= ENTITY_ROTATE;
         if (self->facingLeft) {
@@ -526,15 +625,15 @@ void func_us_801C1804(Entity* self) {
             self->velocityX = FIX(-0.5);
         }
         self->velocityY = 0;
-        self->ext.salome.unk9C = 0;
-        if (self->ext.salome.unk9E) {
+        self->ext.salome.touchedGround = 0;
+        if (self->ext.salome.isDeathCat) {
             self->hitPoints <<= 2;
         }
         // fallthrough
     case 1:
         MoveEntity();
         self->rotate = 0;
-        if (self->ext.salome.unk9E) {
+        if (self->ext.salome.isDeathCat) {
             self->animCurFrame = 0x38;
         } else {
             self->animCurFrame = 0x2F;
@@ -545,51 +644,51 @@ void func_us_801C1804(Entity* self) {
         } else {
             self->velocityX = FIX(-0.5);
         }
-        self->velocityY += FIX(0.09375);
+        self->velocityY += FIX(3.0 / 32.0);
 
         if (self->ext.salome.unk9D) {
             self->velocityX = -self->velocityX;
             self->animCurFrame = 0x30;
-            if (self->ext.salome.unk9E) {
+            if (self->ext.salome.isDeathCat) {
                 self->animCurFrame = 0x39;
             }
         }
         posX = self->posX.i.hi;
         posY = self->posY.i.hi;
         if (self->velocityX > 0) {
-            if (!self->ext.salome.unk9C) {
+            if (!self->ext.salome.touchedGround) {
                 posX += 2;
             } else {
                 posX += 8;
             }
             g_api.CheckCollision(posX, posY, &collider, 0);
             if (collider.effects & EFFECT_SOLID) {
-                if (self->ext.salome.unk9C & 1) {
+                if (self->ext.salome.touchedGround & 1) {
                     self->posX.i.hi += collider.unk14;
                     self->velocityX = -self->velocityX;
                 }
             } else {
-                self->ext.salome.unk9C |= 1;
+                self->ext.salome.touchedGround |= 1;
             }
         } else {
-            if (!self->ext.salome.unk9C) {
+            if (!self->ext.salome.touchedGround) {
                 posX -= 2;
             } else {
                 posX -= 8;
             }
             g_api.CheckCollision(posX, posY, &collider, 0);
             if (collider.effects & EFFECT_SOLID) {
-                if (self->ext.salome.unk9C & 1) {
+                if (self->ext.salome.touchedGround & 1) {
                     self->posX.i.hi += collider.unk1C;
                     self->velocityX = -self->velocityX;
                 }
             } else {
-                self->ext.salome.unk9C |= 1;
+                self->ext.salome.touchedGround |= 1;
             }
         }
 
         posX = self->posX.i.hi;
-        if (self->ext.salome.unk9C & 2) {
+        if (self->ext.salome.touchedGround & 2) {
             posY = self->posY.i.hi + 8;
         } else {
             posY = self->posY.i.hi + 2;
@@ -597,7 +696,7 @@ void func_us_801C1804(Entity* self) {
 
         g_api.CheckCollision(posX, posY, &collider, 0);
         if (collider.effects & EFFECT_SOLID) {
-            if (self->ext.salome.unk9C & 2) {
+            if (self->ext.salome.touchedGround & 2) {
                 self->posY.i.hi += collider.unk18;
                 self->velocityY = 0;
                 if (self->ext.salome.unk9D) {
@@ -618,7 +717,7 @@ void func_us_801C1804(Entity* self) {
                 SetStep(2);
             }
         } else {
-            self->ext.salome.unk9C |= 2;
+            self->ext.salome.touchedGround |= 2;
         }
         break;
     case 2:
@@ -632,63 +731,63 @@ void func_us_801C1804(Entity* self) {
         posY = self->posY.i.hi + 8;
         g_api.CheckCollision(posX, posY, &collider, 0);
         if (collider.effects & EFFECT_SOLID) {
-            var_s1 = 1;
+            collisionTest = 1;
             if (collider.effects & EFFECT_UNK_8000) {
                 if (collider.effects & EFFECT_UNK_4000) {
                     if (self->facingLeft) {
-                        var_s1 = 4;
+                        collisionTest = 4;
                     } else {
-                        var_s1 = 2;
+                        collisionTest = 2;
                     }
                 } else {
                     if (self->facingLeft) {
-                        var_s1 = 2;
+                        collisionTest = 2;
                     } else {
-                        var_s1 = 4;
+                        collisionTest = 4;
                     }
                 }
             }
         }
 
         self->rotate = 0;
-        if (var_s1 == 2) {
+        if (collisionTest == 2) {
             self->velocityX -= self->velocityX / 2;
-            self->rotate = 0x200;
+            self->rotate = ROT(45);
             if (collider.effects & EFFECT_UNK_1000) {
-                self->rotate = 0x100;
+                self->rotate = ROT(22.5);
             }
             if (collider.effects & EFFECT_UNK_2000) {
-                self->rotate = 0x80;
+                self->rotate = ROT(11.25);
             }
         }
 
-        if (var_s1 == 4) {
+        if (collisionTest == 4) {
             self->velocityX += self->velocityX / 8;
-            self->rotate = -0x200;
+            self->rotate = ROT(-45);
             if (collider.effects & EFFECT_UNK_1000) {
-                self->rotate = -0x100;
+                self->rotate = ROT(-22.5);
             }
             if (collider.effects & EFFECT_UNK_2000) {
-                self->rotate = -0x80;
+                self->rotate = ROT(-11.25);
             }
         }
 
-        if (self->ext.salome.unk9E) {
-            var_s3 = AnimateEntity(D_us_8018225C, self);
+        if (self->ext.salome.isDeathCat) {
+            hitFlags = AnimateEntity(anim_death_cat_move, self);
         } else {
-            var_s3 = AnimateEntity(D_us_8018224C, self);
+            hitFlags = AnimateEntity(anim_cat_move, self);
         }
 
-        if (!var_s3) {
+        if (!hitFlags) {
             PlaySfxPositional(SFX_QUIET_STEPS);
         }
 
-        var_s1 = UnkCollisionFunc2(&D_us_80182190);
-        if (var_s1 == 0xFF) {
+        collisionTest = UnkCollisionFunc2(sensors_wall);
+        if (collisionTest == 0xFF) {
             self->facingLeft ^= 1;
         }
 
-        if (var_s1 == 0x80) {
+        if (collisionTest == 0x80) {
             self->velocityY = FIX(-2.0);
             SetStep(1);
         }
