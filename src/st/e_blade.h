@@ -745,7 +745,7 @@ void EntityBladeWeapon(Entity* self) {
         self->hitboxHeight = 6;
         primIndex = g_api.AllocPrimitives(PRIM_G4, 6);
         if (primIndex == -1) {
-#ifdef VERSION_PSP
+#if defined(VERSION_PSP) || defined(VERSION_HD)
             DestroyEntity(self);
 #else
             self->ext.GH_Props.prim = NULL;
@@ -801,7 +801,7 @@ void EntityBladeWeapon(Entity* self) {
     self->hitboxOffY = (rcos(angle) * 13) >> 12;
 
     prim = self->ext.GH_Props.prim;
-#if !defined(VERSION_PSP)
+#if !(defined(VERSION_PSP) || defined(VERSION_HD))
     if (prim != NULL) {
 #else
     if (1) {
