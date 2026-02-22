@@ -728,7 +728,7 @@ files:
           - [0x8C, paldef, palette_def]
           - [0x1D0, layers, layers]
           - [0x558, gfx_banks, graphics_banks]
-          - [0x728, layout, entity_layouts]
+          - [0x728, layout, us/entity_layouts]
           - [0x8D0, skip]
           - [0x3A7C, rooms, rooms]
           - [0x3B68, skip]
