@@ -45,7 +45,8 @@ segments:
       - [0x690, .data, e_room_bg]
       - [0x6C8, data]
       - [0x6F8, .data, e_lock_camera]
-      - [0x778, data]
+      - [0x778, .data, e_breakable]
+      - [0x7CC, data] # prize_drops
       - [0x7EC, .data, e_demon_switch_wall]
       - [0x81C, .data, e_breakable_wall]
       - [0x8C4, .data, e_bat]

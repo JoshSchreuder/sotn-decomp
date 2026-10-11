@@ -9,6 +9,7 @@
 
 enum Palettes {
     PAL_NONE,
+    PAL_BREAKABLE_DEBRIS = 0x159,
 };
 
 typedef enum EntityID {
@@ -53,13 +54,6 @@ typedef enum EntityID {
     NUM_ENTITIES,
 };
 
-extern EInit g_EInitBreakable;
 extern EInit g_EInitGaibon;
-extern AnimateEntityFrame* g_RchiBreakableAnimations[];
-extern u8 g_RchiBreakableHitboxHeights[];
-extern u8 g_RchiBreakableExplosionTypes[];
-extern u16 g_RchiBreakableAnimSets[];
-extern u8 g_RchiBreakableBlendModes[];
-extern s16 g_RchiBreakableDebrisOffsets[];
 
 #endif // RCHI_H
