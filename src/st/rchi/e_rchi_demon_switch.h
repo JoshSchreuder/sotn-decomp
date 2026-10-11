@@ -2,7 +2,7 @@
 void EntityDemonSwitch(Entity* self) {
     switch (self->step) {
     case 0:
-        InitializeEntity(D_us_80180648);
+        InitializeEntity(g_EInitBreakableWallDebris);
 
         self->animCurFrame = 3;
         self->hitPoints = 32767;

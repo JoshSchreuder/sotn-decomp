@@ -55,7 +55,6 @@ typedef enum EntityID {
 
 extern EInit g_EInitBreakable;
 extern EInit g_EInitGaibon;
-extern EInit D_us_80180648;
 extern AnimateEntityFrame* g_RchiBreakableAnimations[];
 extern u8 g_RchiBreakableHitboxHeights[];
 extern u8 g_RchiBreakableExplosionTypes[];

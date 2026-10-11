@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "rchi.h"
 
+extern EInit g_EInitBreakableWallDebris;
+
 /*
  * EntityDemonSwitchWall differs from the CHI original in branch layout,
  * constants and wall control flow, so it cannot share the CHI source.

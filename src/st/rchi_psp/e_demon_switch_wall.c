@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 #include "../rchi/rchi.h"
 
+extern EInit g_EInitBreakableWallDebris;
+
 #include "../e_falling_pebble.h"
 
 extern void (*g_api_RevealSecretPassageAtPlayerPositionOnMap)(s32);
