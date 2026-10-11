@@ -54,6 +54,4 @@ typedef enum EntityID {
     NUM_ENTITIES,
 };
 
-extern EInit g_EInitGaibon;
-
 #endif // RCHI_H
