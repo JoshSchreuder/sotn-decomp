@@ -79,6 +79,7 @@ segments:
       - [0x15DE8, .data, e_thornweed]
       - [0x15EB8, .data, e_bat]
       - [0x15EF8, data]
+      - [0x1A678, .data, e_red_door_tiles]
       - [0x1A6A8, .data, e_init]
       - [0x1A880, data]
       - [0x1A920, .data, e_breakable]
