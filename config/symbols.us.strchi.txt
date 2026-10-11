@@ -5,5 +5,4 @@ gfxBanks = 0x80180308;
 entityLayoutHorizontal = 0x8018034C;
 entityLayoutVertical = 0x80180420;
 g_RedDoorTiles = 0x801806C8;
-PrizeDrops = 0x801807CC;
 rooms = 0x80181838;
